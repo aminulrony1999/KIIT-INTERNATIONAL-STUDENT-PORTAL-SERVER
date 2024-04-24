@@ -30,7 +30,14 @@ async function run() {
     console.log(
       "Pinged your deployment. You successfully connected to MongoDB!"
     );
+    //creating useData database in mongo db
     const userData = client.db("userDB").collection("users");
+    // jwt related api
+    app.post('/jwt', async (req, res) => {
+      const user = req.body;
+      const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' });
+      res.send({ token });
+    })
     //api for checking admin
     app.get('/users/admin/:email', async (req, res) => {
       const email = req.params.email;
