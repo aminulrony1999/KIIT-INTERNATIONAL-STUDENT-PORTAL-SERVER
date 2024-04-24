@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require("cors");
+const jwt = require('jsonwebtoken');
 require("dotenv").config();
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const app = express();
@@ -34,9 +35,9 @@ async function run() {
     app.get('/users/admin/:email', async (req, res) => {
       const email = req.params.email;
 
-      if (email !== req.decoded.email) {
-        return res.status(403).send({ message: 'forbidden access' })
-      }
+      // if (email !== req.decoded.email) {
+      //   return res.status(403).send({ message: 'forbidden access' })
+      // }
 
       const query = { email: email };
       const user = await userData.findOne(query);
