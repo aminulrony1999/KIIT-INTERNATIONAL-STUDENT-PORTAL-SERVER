@@ -1,6 +1,6 @@
 const express = require("express");
 const cors = require("cors");
-const jwt = require('jsonwebtoken');
+const jwt = require("jsonwebtoken");
 require("dotenv").config();
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const app = express();
@@ -31,80 +31,113 @@ async function run() {
       "Pinged your deployment. You successfully connected to MongoDB!"
     );
 
-
     //creating useData database in mongo db
     const userData = client.db("userDB").collection("users");
 
-
     // jwt related api
-    app.post('/jwt', async (req, res) => {
+    app.post("/jwt", async (req, res) => {
       const user = req.body;
-      const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' });
-      console.log(token);
+      const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
+        expiresIn: "1h",
+      });
       res.send({ token });
-    })
+    });
 
-    // middlewares 
+    // middlewares
     const verifyToken = (req, res, next) => {
       // console.log('inside verify token', req.headers.authorization);
       if (!req.headers.authorization) {
-        return res.status(401).send({ message: 'unauthorized access' });
+        return res.status(401).send({ message: "unauthorized access" });
       }
-      const token = req.headers.authorization.split(' ')[1];
+      const token = req.headers.authorization.split(" ")[1];
       jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
         if (err) {
-          return res.status(401).send({ message: 'unauthorized access' })
+          return res.status(401).send({ message: "unauthorized access" });
         }
         req.decoded = decoded;
         next();
-      })
-    }
+      });
+    };
 
     // use verify admin after verifyToken
     const verifyAdmin = async (req, res, next) => {
       const email = req.decoded.email;
       const query = { email: email };
       const user = await userData.findOne(query);
-      const isAdmin = user?.role === 'admin';
+      const isAdmin = user?.role === "admin";
       if (!isAdmin) {
-        return res.status(403).send({ message: 'forbidden access' });
+        return res.status(403).send({ message: "forbidden access" });
       }
       next();
-    }
-
+    };
 
     //api for checking admin
-    app.get('/users/admin/:email', verifyToken, async (req, res) => {
+    app.get("/users/admin/:email", verifyToken, async (req, res) => {
       const email = req.params.email;
 
       if (email !== req.decoded.email) {
-        return res.status(403).send({ message: 'forbidden access' })
+        return res.status(403).send({ message: "forbidden access" });
       }
 
       const query = { email: email };
       const user = await userData.findOne(query);
       let admin = false;
       if (user) {
-        admin = user?.role === 'admin';
+        admin = user?.role === "admin";
       }
       res.send({ admin });
-    })
-    app.post('/users',async(req,res)=>{
+    });
+
+    //api to get a single user data
+    app.get("/user/:email", verifyToken, async (req, res) => {
+      const email = req.params.email;
+
+      if (email !== req.decoded.email) {
+        return res.status(403).send({ message: "forbidden access" });
+      }
+
+      const query = { email: email };
+      const user = await userData.findOne(query);
+      res.send(user);
+    });
+
+    //api to update a single user's information
+    app.patch("/user/:id", verifyToken, async (req, res) => {
+      const id = req.params.id;
+
+      const filter = { _id: new ObjectId(id) };
+      const updatedUserData = req.body;
+      const updatedUser = {
+        $set: {
+          name: updatedUserData.name,
+          nationality: updatedUserData.nationality,
+          mobilenumber: updatedUserData.mobilenumber,
+          department: updatedUserData.department,
+          program: updatedUserData.program,
+          roll: updatedUserData.roll,
+          session: updatedUserData.session,
+        },
+      };
+      const result = await userData.updateOne(filter, updatedUser);
+      res.send(result);
+    });
+
+    app.post("/users", async (req, res) => {
       const user = req.body;
       const result = await userData.insertOne(user);
       res.send(result);
-    })
-    app.patch('/users/admin/:id', async(req,res)=>{
+    });
+    app.patch("/users/admin/:id", async (req, res) => {
       const id = req.params.id;
-      const filter = {_id : new ObjectId(id)};
+      const filter = { _id: new ObjectId(id) };
       const updatedUser = {
-        $set : {
-          role : 'admin'
-        }
-      }
-      const result = await userData.updateOne(filter,updatedUser);
+        $set: {
+          role: "admin",
+        },
+      };
+      const result = await userData.updateOne(filter, updatedUser);
       res.send(result);
-    })
+    });
   } finally {
     // Ensures that the client will close when you finish/error
     // await client.close();
