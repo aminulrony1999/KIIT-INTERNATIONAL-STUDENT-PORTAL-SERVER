@@ -24,6 +24,9 @@ const port = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json()); //this middleware is required to access req.body
 
+//making the uploaded file static to access it from anywhere
+app.use("/UserDocuments",express.static("UserDocuments"));
+
 //user name and password is hidded
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@kiit-iro-portal.qfxkq4e.mongodb.net/?retryWrites=true&w=majority&appName=KIIT-IRO-PORTAL`;
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
