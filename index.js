@@ -2,19 +2,19 @@ const express = require("express");
 const cors = require("cors");
 const jwt = require("jsonwebtoken");
 //middleware for receiving document from front end
-const multer  = require('multer');
+const multer = require("multer");
 //storage where user document will be uploaded
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, './UserDocuments')
+    cb(null, "./UserDocuments");
   },
   filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now()
-    cb(null, uniqueSuffix+file.originalname)
-  }
-})
+    const uniqueSuffix = Date.now();
+    cb(null, uniqueSuffix + file.originalname);
+  },
+});
 
-const upload = multer({ storage: storage })
+const upload = multer({ storage: storage });
 
 require("dotenv").config();
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
@@ -25,7 +25,7 @@ app.use(cors());
 app.use(express.json()); //this middleware is required to access req.body
 
 //making the uploaded file static to access it from anywhere
-app.use("/UserDocuments",express.static("UserDocuments"));
+app.use("/UserDocuments", express.static("UserDocuments"));
 
 //user name and password is hidded
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@kiit-iro-portal.qfxkq4e.mongodb.net/?retryWrites=true&w=majority&appName=KIIT-IRO-PORTAL`;
@@ -157,27 +157,48 @@ async function run() {
       res.send(result);
     });
 
-
     //api related to file upload multer and send to mongodb
-    const multipleUpload = upload.fields([{name : 'passport', maxCount : 1},{name : 'visa', maxCount : 1},{name : 'image', maxCount : 1}])
-    app.post('/upload-files/:email', multipleUpload, async(req,res)=>{
+    const multipleUpload = upload.fields([
+      { name: "passport", maxCount: 1 },
+      { name: "visa", maxCount: 1 },
+      { name: "image", maxCount: 1 },
+    ]);
+    app.post("/upload-files/:email", multipleUpload, async (req, res) => {
       const email = req.params.email;
-      const passport = req.files['passport'][0].filename;
-      const visa = req.files['visa'][0].filename;
-      const image = req.files['image'][0].filename;
-      console.log(passport,visa,image);
-      const filter = { email : email };
+      const passport = req.files["passport"][0].filename;
+      const visa = req.files["visa"][0].filename;
+      const image = req.files["image"][0].filename;
+      console.log(passport, visa, image);
+      const filter = { email: email };
       const userDocument = {
         $set: {
           image: image,
-          passport : passport,
-          visa : visa
-        }
+          passport: passport,
+          visa: visa,
+        },
       };
       const result = await userData.updateOne(filter, userDocument);
       res.send(result);
     });
 
+    //api related to update user file using multer and send to mongodb
+    app.put("/update-files/:email", multipleUpload, async (req, res) => {
+      const email = req.params.email;
+      const passport = req.files["passport"][0].filename;
+      const visa = req.files["visa"][0].filename;
+      const image = req.files["image"][0].filename;
+      console.log(passport, visa, image);
+      const filter = { email: email };
+      const updatedUserDocument = {
+        $set: {
+          image: image,
+          passport: passport,
+          visa: visa,
+        },
+      };
+      const result = await userData.updateOne(filter, updatedUserDocument);
+      res.send(result);
+    });
   } finally {
     // Ensures that the client will close when you finish/error
     // await client.close();
