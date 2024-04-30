@@ -1,6 +1,21 @@
 const express = require("express");
 const cors = require("cors");
 const jwt = require("jsonwebtoken");
+//middleware for receiving document from front end
+const multer  = require('multer');
+//storage where user document will be uploaded
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, './UserDocuments')
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now()
+    cb(null, uniqueSuffix+file.originalname)
+  }
+})
+
+const upload = multer({ storage: storage })
+
 require("dotenv").config();
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const app = express();
