@@ -163,42 +163,52 @@ async function run() {
       { name: "visa", maxCount: 1 },
       { name: "image", maxCount: 1 },
     ]);
-    app.post("/upload-files/:email", multipleUpload, async (req, res) => {
-      const email = req.params.email;
-      const passport = req.files["passport"][0].filename;
-      const visa = req.files["visa"][0].filename;
-      const image = req.files["image"][0].filename;
-      console.log(passport, visa, image);
-      const filter = { email: email };
-      const userDocument = {
-        $set: {
-          image: image,
-          passport: passport,
-          visa: visa,
-        },
-      };
-      const result = await userData.updateOne(filter, userDocument);
-      res.send(result);
-    });
+    app.post(
+      "/upload-files/:email",
+      verifyToken,
+      multipleUpload,
+      async (req, res) => {
+        const email = req.params.email;
+        const passport = req.files["passport"][0].filename;
+        const visa = req.files["visa"][0].filename;
+        const image = req.files["image"][0].filename;
+        console.log(passport, visa, image);
+        const filter = { email: email };
+        const userDocument = {
+          $set: {
+            image: image,
+            passport: passport,
+            visa: visa,
+          },
+        };
+        const result = await userData.updateOne(filter, userDocument);
+        res.send(result);
+      }
+    );
 
     //api related to update user file using multer and send to mongodb
-    app.put("/update-files/:email", multipleUpload, async (req, res) => {
-      const email = req.params.email;
-      const passport = req.files["passport"][0].filename;
-      const visa = req.files["visa"][0].filename;
-      const image = req.files["image"][0].filename;
-      console.log(passport, visa, image);
-      const filter = { email: email };
-      const updatedUserDocument = {
-        $set: {
-          image: image,
-          passport: passport,
-          visa: visa,
-        },
-      };
-      const result = await userData.updateOne(filter, updatedUserDocument);
-      res.send(result);
-    });
+    app.put(
+      "/update-files/:email",
+      verifyToken,
+      multipleUpload,
+      async (req, res) => {
+        const email = req.params.email;
+        const passport = req.files["passport"][0].filename;
+        const visa = req.files["visa"][0].filename;
+        const image = req.files["image"][0].filename;
+        console.log(passport, visa, image);
+        const filter = { email: email };
+        const updatedUserDocument = {
+          $set: {
+            image: image,
+            passport: passport,
+            visa: visa,
+          },
+        };
+        const result = await userData.updateOne(filter, updatedUserDocument);
+        res.send(result);
+      }
+    );
   } finally {
     // Ensures that the client will close when you finish/error
     // await client.close();
