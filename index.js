@@ -119,6 +119,14 @@ async function run() {
       res.send(user);
     });
 
+    //api to get a single user data for admin
+    app.get("/user/admin/:id", verifyToken, verifyAdmin, async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const user = await userData.findOne(query);
+      res.send(user);
+    });
+
     //api to update a single user's information
     app.patch("/user/:id", verifyToken, async (req, res) => {
       const id = req.params.id;
@@ -159,7 +167,6 @@ async function run() {
       const result = await userData.deleteOne(query);
       res.send(result);
     });
-
 
     //api for making a user admin
     app.patch("/users/admin/:id", async (req, res) => {
