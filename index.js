@@ -145,6 +145,23 @@ async function run() {
       const result = await userData.insertOne(user);
       res.send(result);
     });
+
+    //api for getting all user data
+    app.get("/users", verifyToken, verifyAdmin, async (req, res) => {
+      const result = await userData.find().toArray();
+      res.send(result);
+    });
+
+    //api for deleting a specific user
+    app.delete("/users/:id", verifyToken, verifyAdmin, async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await userData.deleteOne(query);
+      res.send(result);
+    });
+
+
+    //api for making a user admin
     app.patch("/users/admin/:id", async (req, res) => {
       const id = req.params.id;
       const filter = { _id: new ObjectId(id) };
