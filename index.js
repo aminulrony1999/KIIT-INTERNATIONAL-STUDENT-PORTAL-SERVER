@@ -21,7 +21,17 @@ const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const app = express();
 const port = process.env.PORT || 5000;
 //middleware
-app.use(cors());
+// app.use(cors());
+app.use(
+  cors({
+    origin: [
+      "https://kiit-iro-portal.web.app",
+      "https://kiitportal.aminulrony.com",
+      "http://localhost:5173",
+    ],
+    credentials: true,
+  })
+);
 app.use(express.json()); //this middleware is required to access req.body
 
 //making the uploaded file static to access it from anywhere
