@@ -38,7 +38,7 @@ app.use(express.json()); //this middleware is required to access req.body
 app.use("/UserDocuments", express.static("UserDocuments"));
 
 //user name and password is hidded
-const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@kiit-iro-portal.qfxkq4e.mongodb.net/?retryWrites=true&w=majority&appName=KIIT-IRO-PORTAL`;
+const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@international-student-d.vt6tjzt.mongodb.net/?retryWrites=true&w=majority&appName=International-Student-Data`;
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
   serverApi: {
@@ -73,7 +73,7 @@ async function run() {
 
     // middlewares
     const verifyToken = (req, res, next) => {
-      // console.log('inside verify token', req.headers.authorization);
+      console.log("inside verify token", req.headers.authorization);
       if (!req.headers.authorization) {
         return res.status(401).send({ message: "unauthorized access" });
       }
